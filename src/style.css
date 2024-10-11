@@ -1,0 +1,126 @@
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+h2,
+h3 {
+  color: #333;
+}
+
+/* Container */
+#app {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Styles */
+input[type="text"],
+input[type="submit"],
+button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Button Styles */
+button {
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #4cae4c;
+}
+
+/* List Styles */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+/* Message Styles */
+#message-ul {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+strong {
+  color: #007bff;
+}
+
+/* Estilos básicos para el modal */
+.modal {
+  display: none; /* Oculto por defecto */
+  position: fixed; /* Fijado para permanecer en la pantalla */
+  z-index: 1; /* Asegurar que esté encima de otros elementos */
+  left: 0;
+  top: 0;
+  width: 100%; /* Ancho total */
+  height: 100%; /* Altura total */
+  overflow: auto; /* Habilitar scroll si es necesario */
+  background-color: rgb(0, 0, 0); /* Color de fondo */
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo con transparencia */
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* Centramos el modal */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Ancho del contenido */
+}
+
+/* Botón de cerrar (X) */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Botón para salir de la sala */
+#btn-leave-room {
+  background-color: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#btn-leave-room:hover {
+  background-color: darkred;
+}
+
