@@ -115,14 +115,15 @@ const addListeners = () => {
   socket.on(
     "previousMessages",
     (
-      messages: Array<{ user_id: number; content: string; created_at: string }>
+      messages: Array<{ user_id: number; name: string; email: string; content: string; created_at: string }>
     ) => {
       messages.forEach((msg) => {
         if (!clientColors[msg.user_id]) {
           clientColors[msg.user_id] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
         }
 
-        const userName = `Usuario ${msg.user_id}`;
+        // const userName = `Usuario ${msg.user_id}`;
+        const userName = msg.name;
         const localTime = convertToLocalTimeZone(msg.created_at).format("HH:mm:ss");
 
         const newMessage = `
