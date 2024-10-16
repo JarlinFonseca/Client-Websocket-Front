@@ -21,13 +21,29 @@ h3 {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Flex Container for Input and Select */
+.input-select-container {
+  display: flex;
+  justify-content: space-between; /* Espacio entre los elementos */
+  align-items: center; /* Alineación vertical */
+  margin: 5px 0; /* Espaciado alrededor del contenedor */
+}
+
 /* Input Styles */
-input[type="text"],
-input[type="submit"],
-button {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
+input[type="text"] {
+  flex: 2; /* Toma 2 partes del espacio disponible */
+  padding: 12px; /* Aumenta el padding para mayor comodidad */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px; /* Aumenta el tamaño de la fuente */
+  margin-right: 10px; /* Espacio a la derecha del input */
+}
+
+/* Select Styles */
+select {
+  flex: 1; /* Toma 1 parte del espacio disponible */
+  padding: 12px; /* Aumenta el padding */
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
@@ -35,6 +51,9 @@ button {
 
 /* Button Styles */
 button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
   background-color: #5cb85c;
   color: white;
   border: none;
@@ -123,4 +142,3 @@ strong {
 #btn-leave-room:hover {
   background-color: darkred;
 }
-
