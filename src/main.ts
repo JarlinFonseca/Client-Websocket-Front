@@ -20,7 +20,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <h3>Join Sala</h3>
     <input id="ticket-id-join" placeholder="Ticket ID to join" />
     <button id="btn-join-room">Join Room</button>
-    
+
     <!-- Nuevo botón rojo para salir de la sala -->
     <button id="btn-leave-room" style="background-color: red; color: white;">Leave Room</button>
 
@@ -64,14 +64,27 @@ btnJoinRoom.addEventListener('click', () => {
   if (ticketIdJoinInput.value.trim().length <= 0) return alert('Enter a valid Ticket ID');
   
   joinTicketRoom(ticketIdJoinInput.value.trim());
-  
+
+  // Ocultar el input y el botón de unirse a la sala
+  ticketIdJoinInput.style.display = 'none';
+  btnJoinRoom.style.display = 'none';
+
   // Mostrar el modal cuando se haya unido exitosamente a la sala
   modal.style.display = 'block';
+  modal.querySelector('p')!.textContent = 'You have successfully joined the room!';
 });
 
 // Salir de la sala al hacer clic en el nuevo botón rojo
 btnLeaveRoom.addEventListener('click', () => {
   leaveTicketRoom();
+
+  // Mostrar nuevamente el input y el botón de unirse a la sala
+  ticketIdJoinInput.style.display = 'block';
+  btnJoinRoom.style.display = 'block';
+
+  // Mostrar el modal cuando se haya salido de la sala
+  modal.style.display = 'block';
+  modal.querySelector('p')!.textContent = 'You have successfully left the room!';
 });
 
 // Cerrar el modal
