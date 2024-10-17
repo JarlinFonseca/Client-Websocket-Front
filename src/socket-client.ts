@@ -62,6 +62,10 @@ const getRandomDarkColor = () => {
 const addListeners = () => {
   const clientsUl = document.querySelector<HTMLUListElement>("#clients-ul")!;
   const messageUl = document.querySelector<HTMLUListElement>("#message-ul")!;
+  const btnJoinRoom =
+  document.querySelector<HTMLButtonElement>("#btn-join-room")!;
+const ticketIdJoinInput =
+  document.querySelector<HTMLInputElement>("#ticket-id-join")!;
   const serverStatusLabel =
     document.querySelector<HTMLSpanElement>("#server-status")!;
 
@@ -75,6 +79,13 @@ const addListeners = () => {
     console.log("disconnected");
     serverStatusLabel.innerText = "disconnected";
     serverStatusLabel.style.color = "red";
+    // Eliminar currentTicketId del sessionStorage al desconectarse
+    sessionStorage.removeItem("currentTicketId");
+    currentTicketId = null; // También puedes limpiar la variable actual
+
+     // Mostrar el input y el botón para unirse a la sala
+     btnJoinRoom.style.display = "block"; // Mostrar el input
+     ticketIdJoinInput.style.display = "block"; // Mostrar el botón
   });
 
   socket.on("clients_updated", (clients: string[]) => {
