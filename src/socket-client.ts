@@ -17,15 +17,15 @@ export function convertToLocalTimeZone(value: dayjs.ConfigType) {
   return dayjs.utc(value).tz(dayjs.tz.guess()); // Convierte de UTC a la zona horaria local
 }
 
-export const connectToServer = (token: string, userType: string, emailExternal: string) => {
+export const connectToServer = (userType: string, emailExternal: string) => {
   // Guardar el token, tipo de usuario y email externo en sessionStorage
-  sessionStorage.setItem("jwtToken", token);
+  // sessionStorage.setItem("jwtToken", token);
   sessionStorage.setItem("userType", userType);
   sessionStorage.setItem("emailExternal", emailExternal); // Guardar el email externo
 
   const manager = new Manager("http://localhost:4000/socket.io/socket.io.js", {
     extraHeaders: {
-      authentication: token,
+      // authentication: token,
       connectionType: "web",
       userType: userType, // Incluimos el tipo de usuario seleccionado
       emailExternal: emailExternal, // Incluimos el email externo
