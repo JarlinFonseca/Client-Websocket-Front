@@ -12,11 +12,8 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <h2>WebSocket - Client!</h2>
     <div id="external-fields">
       <input id="email-input" placeholder="Email" />
+       <input id="name-input" placeholder="Name" />
     </div>
-    <select id="user-type">
-      <option value="INTERNAL">INTERNAL</option>
-      <option value="EXTERNAL">EXTERNAL</option>
-    </select>
     <button id="btn-connect">Connect</button>
 
     <br/>
@@ -55,7 +52,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 `;
 
 const emailInput = document.querySelector<HTMLInputElement>("#email-input")!;
-const userTypeSelect = document.querySelector<HTMLSelectElement>("#user-type")!;
+const nameInput = document.querySelector<HTMLInputElement>("#name-input")!;
 const btnConnect = document.querySelector<HTMLButtonElement>("#btn-connect")!;
 const btnJoinRoom =
   document.querySelector<HTMLButtonElement>("#btn-join-room")!;
@@ -69,30 +66,23 @@ const messageInput =
 const modal = document.querySelector<HTMLDivElement>("#modal")!;
 const closeModal = document.querySelector<HTMLSpanElement>("#close-modal")!;
 
-// // Cambiar los campos de entrada según el tipo de usuario seleccionado
-// userTypeSelect.addEventListener("change", () => {
-//   if (userTypeSelect.value === "INTERNAL") {
-//     jwtToken.parentElement!.style.display = "block"; // Muestra el input del JWT
-//     emailInput.parentElement!.style.display = "none"; // Oculta el input del email
-//   } else {
-//     jwtToken.parentElement!.style.display = "none"; // Oculta el input del JWT
-//     emailInput.parentElement!.style.display = "block"; // Muestra el input del email
-//   }
-// });
-
 // Conectar al servidor
 btnConnect.addEventListener("click", () => {
-  const selectedUserType = userTypeSelect.value;
+  // const selectedUserType = userTypeSelect.value;
 
   let email = "";
+  let name = "";
 
   email = emailInput.value.trim();
-    if (email.length <= 0 || !/\S+@\S+\.\S+/.test(email)) {
-      return alert("Enter a valid email address");
-    }
-  
+  if (email.length <= 0 || !/\S+@\S+\.\S+/.test(email)) {
+    return alert("Enter a valid email address");
+  }
+  name = nameInput.value.trim();
+  if (nameInput.value.trim().length <= 0) {
+    return alert("Enter a valid name");
+  }
 
-  connectToServer(selectedUserType, emailInput.value);
+  connectToServer(email, name);
 });
 
 // Unirse a la sala con el ticket ID
@@ -100,7 +90,7 @@ btnJoinRoom.addEventListener("click", () => {
   if (ticketIdJoinInput.value.trim().length <= 0)
     return alert("Enter a valid Ticket ID");
 
-  joinTicketRoom(ticketIdJoinInput.value.trim());
+  joinTicketRoom({ room_id: ticketIdJoinInput.value.trim()});
 
   // Ocultar el input y el botón de unirse a la sala
   ticketIdJoinInput.style.display = "none";
@@ -152,23 +142,13 @@ window.onclick = (event) => {
 
 // Manejar carga de la página
 window.addEventListener("load", () => {
-  // const savedJwtToken = sessionStorage.getItem("jwtToken");
-  const savedUserType = sessionStorage.getItem("userType"); // Obtener el tipo de usuario guardado
-  const savedEmailExternal = sessionStorage.getItem("emailExternal"); // Obtener el email guardado
+  const savedEmail = sessionStorage.getItem("email"); // Obtener el email guardado
+  const savedName = sessionStorage.getItem("name"); // Obtener el nombre guardado
   const savedTicketId = sessionStorage.getItem("currentTicketId"); // Obtener el ticket ID guardado
 
 
-  // if (savedJwtToken && savedUserType) {
-  //   connectToServer(savedJwtToken, savedUserType, ''); // Pasar el token y el tipo de usuario
-
-  //   if (savedTicketId) {
-  //     ticketIdJoinInput.style.display = "none";
-  //     btnJoinRoom.style.display = "none"; // Ocultar si ya está en una sala
-  //   }
-  // }
-
-  if (savedUserType && savedEmailExternal) {
-    connectToServer(savedUserType, savedEmailExternal); // Pasar el token y el tipo de usuario
+  if (savedEmail && savedName) {
+    connectToServer(savedEmail, savedName); // Pasar el token y el tipo de usuario
 
     if (savedTicketId) {
       ticketIdJoinInput.style.display = "none";

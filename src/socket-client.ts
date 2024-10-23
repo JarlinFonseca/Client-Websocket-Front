@@ -17,18 +17,14 @@ export function convertToLocalTimeZone(value: dayjs.ConfigType) {
   return dayjs.utc(value).tz(dayjs.tz.guess()); // Convierte de UTC a la zona horaria local
 }
 
-export const connectToServer = (userType: string, emailExternal: string) => {
-  // Guardar el token, tipo de usuario y email externo en sessionStorage
-  // sessionStorage.setItem("jwtToken", token);
-  sessionStorage.setItem("userType", userType);
-  sessionStorage.setItem("emailExternal", emailExternal); // Guardar el email externo
+export const connectToServer = (email: string, name: string) => {
+  sessionStorage.setItem("email", email); // Guardar el email
+  sessionStorage.setItem("name", name); // Guardar el nombre
 
   const manager = new Manager("http://localhost:4000/socket.io/socket.io.js", {
     extraHeaders: {
-      // authentication: token,
-      connectionType: "web",
-      userType: userType, // Incluimos el tipo de usuario seleccionado
-      emailExternal: emailExternal, // Incluimos el email externo
+      email,
+      name,
     },
   });
 
@@ -40,10 +36,9 @@ export const connectToServer = (userType: string, emailExternal: string) => {
 
   // Si ya estaba en una sala, volver a unirse automáticamente
   if (currentTicketId) {
-    joinTicketRoom(currentTicketId);
+    joinTicketRoom({ room_id: currentTicketId });
   }
 };
-
 
 // Función para asignar un color aleatorio oscuro a cada cliente
 const getRandomDarkColor = () => {
@@ -63,9 +58,9 @@ const addListeners = () => {
   const clientsUl = document.querySelector<HTMLUListElement>("#clients-ul")!;
   const messageUl = document.querySelector<HTMLUListElement>("#message-ul")!;
   const btnJoinRoom =
-  document.querySelector<HTMLButtonElement>("#btn-join-room")!;
-const ticketIdJoinInput =
-  document.querySelector<HTMLInputElement>("#ticket-id-join")!;
+    document.querySelector<HTMLButtonElement>("#btn-join-room")!;
+  const ticketIdJoinInput =
+    document.querySelector<HTMLInputElement>("#ticket-id-join")!;
   const serverStatusLabel =
     document.querySelector<HTMLSpanElement>("#server-status")!;
 
@@ -83,9 +78,9 @@ const ticketIdJoinInput =
     sessionStorage.removeItem("currentTicketId");
     currentTicketId = null; // También puedes limpiar la variable actual
 
-     // Mostrar el input y el botón para unirse a la sala
-     btnJoinRoom.style.display = "block"; // Mostrar el input
-     ticketIdJoinInput.style.display = "block"; // Mostrar el botón
+    // Mostrar el input y el botón para unirse a la sala
+    btnJoinRoom.style.display = "block"; // Mostrar el input
+    ticketIdJoinInput.style.display = "block"; // Mostrar el botón
   });
 
   socket.on("clients_updated", (clients: string[]) => {
@@ -101,24 +96,26 @@ const ticketIdJoinInput =
 
   socket.on(
     "chatToClient",
-    (payload: { fullName: string; message: string; created_at: string }) => {
+    (payload: { full_name: string; content: string; created_at: string }) => {
       console.log({ payload });
-      if (!clientColors[payload.fullName]) {
-        clientColors[payload.fullName] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
+      if (!clientColors[payload.full_name]) {
+        clientColors[payload.full_name] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
       }
 
       // Convertir la fecha UTC a la zona horaria local
       // const localDate = new Date(payload.created_at);
       // const localTimeString = localDate.toLocaleTimeString();
 
-      const localTime = convertToLocalTimeZone(payload.created_at).format("HH:mm:ss");
+      const localTime = convertToLocalTimeZone(payload.created_at).format(
+        "HH:mm:ss"
+      );
 
       const newMessage = `
       <li>
-        <strong style="color:${clientColors[payload.fullName]}">${
-        payload.fullName
+        <strong style="color:${clientColors[payload.full_name]}">${
+        payload.full_name
       }</strong>
-        <span style="color:black;">${payload.message}</span>
+        <span style="color:black;">${payload.content}</span>
          <small style="color:gray;">${localTime}</small>
       </li>`;
 
@@ -131,21 +128,28 @@ const ticketIdJoinInput =
   socket.on(
     "previousMessages",
     (
-      messages: Array<{ user_id: number; name: string; email: string; content: string; created_at: string }>
+      messages: Array<{
+        name: string;
+        email: string;
+        content: string;
+        created_at: string;
+      }>
     ) => {
       messages.forEach((msg) => {
-        if (!clientColors[msg.user_id]) {
-          clientColors[msg.user_id] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
+        if (!clientColors[msg.name]) {
+          clientColors[msg.name] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
         }
 
         // const userName = `Usuario ${msg.user_id}`;
         const userName = msg.name;
-        const localTime = convertToLocalTimeZone(msg.created_at).format("HH:mm:ss");
+        const localTime = convertToLocalTimeZone(msg.created_at).format(
+          "HH:mm:ss"
+        );
 
         const newMessage = `
         <li>
           <strong style="color:${
-            clientColors[msg.user_id]
+            clientColors[msg.name]
           }">${userName}</strong>
           <span style="color:black;">${msg.content}</span>
           <small style="color:gray;">${localTime}</small>
@@ -159,13 +163,11 @@ const ticketIdJoinInput =
   );
 };
 
-
-
-export const joinTicketRoom = (ticketId: string) => {
-  currentTicketId = ticketId;
-  sessionStorage.setItem("currentTicketId", ticketId); // Guardar el ticketId en sessionStorage
-  socket.emit("joinTicketRoom", ticketId);
-  console.log(`Joined room with ticket ID: ${ticketId}`);
+export const joinTicketRoom = (data: { room_id: string }) => {
+  currentTicketId = data.room_id;
+  sessionStorage.setItem("currentTicketId", currentTicketId); // Guardar el ticketId en sessionStorage
+  socket.emit("joinRoom", {room_id: data.room_id});
+  console.log(`Joined room with ticket ID: ${data.room_id}`);
 };
 
 export const leaveTicketRoom = () => {
@@ -173,28 +175,20 @@ export const leaveTicketRoom = () => {
     console.error("You are not in any room.");
     return;
   }
-  socket.emit("leaveTicketRoom", currentTicketId);
+  socket.emit("leaveRoom", { room_id: currentTicketId });
   sessionStorage.removeItem("currentTicketId");
   currentTicketId = null;
   console.log("Left the room");
 };
 
-export const sendMessage = (message: string) => {
+export const sendMessage = (content: string) => {
   if (!currentTicketId) {
     console.error("You must join a room before sending a message.");
     return;
   }
   socket.emit("sendMessage", {
-    ticketId: currentTicketId,
-    message,
+    room_id: currentTicketId,
+    content,
+    content_type: "text/plain",
   });
 };
-
-// window.addEventListener("load", () => {
-//   const savedJwtToken = sessionStorage.getItem("jwtToken");
-//   const savedUserType = sessionStorage.getItem("userType"); // Obtener el tipo de usuario guardado
-
-//   if (savedJwtToken && savedUserType) {
-//     connectToServer(savedJwtToken, savedUserType); // Pasar el token y el tipo de usuario
-//   }
-// });
