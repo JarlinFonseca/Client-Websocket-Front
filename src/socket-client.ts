@@ -17,16 +17,11 @@ export function convertToLocalTimeZone(value: dayjs.ConfigType) {
   return dayjs.utc(value).tz(dayjs.tz.guess()); // Convierte de UTC a la zona horaria local
 }
 
-export const connectToServer = (email: string, name: string) => {
-  sessionStorage.setItem("email", email); // Guardar el email
-  sessionStorage.setItem("name", name); // Guardar el nombre
+export const connectToServer = () => {
+  // sessionStorage.setItem("email", email); // Guardar el email
+  // sessionStorage.setItem("name", name); // Guardar el nombre
 
-  const manager = new Manager("http://localhost:4000/socket.io/socket.io.js", {
-    extraHeaders: {
-      email,
-      name,
-    },
-  });
+  const manager = new Manager("http://localhost:4000/socket.io/socket.io.js");
 
   socket?.removeAllListeners();
   socket = manager.socket("/");
@@ -83,16 +78,34 @@ const addListeners = () => {
     ticketIdJoinInput.style.display = "block"; // Mostrar el botón
   });
 
-  socket.on("clients_updated", (clients: string[]) => {
+  socket.on("getClientsAll", (clients: Array<{ room_id: number; client_id: string; }>) => {
     let clientsHtml = "";
-    clients.forEach((clientId) => {
-      if (!clientColors[clientId]) {
-        clientColors[clientId] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
-      }
-      clientsHtml += `<li style="color:${clientColors[clientId]}">${clientId}</li>`;
-    });
+  
+    // Filtrar clientes según el room_id actual si es necesario
+    const currentRoomId = currentTicketId ? parseInt(currentTicketId, 10) : null;
+    const filteredClients = clients.filter(client => client.room_id === currentRoomId);
+  
+    // Verificar si el arreglo está vacío
+    if (filteredClients.length === 0) {
+      clientsHtml = "<li>No hay clientes activos unidos a salas.</li>";
+    } else {
+      filteredClients.forEach((client) => {
+        const clientId = client.client_id;
+  
+        // Asignar un color oscuro si no tiene ya asignado uno
+        if (!clientColors[clientId]) {
+          clientColors[clientId] = getRandomDarkColor();
+        }
+  
+        // Agregar el cliente a la lista HTML
+        clientsHtml += `<li style="color:${clientColors[clientId]}">${clientId}</li>`;
+      });
+    }
+  
+    // Mostrar la lista de clientes en el UL correspondiente
     clientsUl.innerHTML = clientsHtml;
   });
+  
 
   socket.on(
     "chatToClient",
@@ -148,9 +161,7 @@ const addListeners = () => {
 
         const newMessage = `
         <li>
-          <strong style="color:${
-            clientColors[msg.name]
-          }">${userName}</strong>
+          <strong style="color:${clientColors[msg.name]}">${userName}</strong>
           <span style="color:black;">${msg.content}</span>
           <small style="color:gray;">${localTime}</small>
         </li>`;
@@ -166,7 +177,7 @@ const addListeners = () => {
 export const joinTicketRoom = (data: { room_id: string }) => {
   currentTicketId = data.room_id;
   sessionStorage.setItem("currentTicketId", currentTicketId); // Guardar el ticketId en sessionStorage
-  socket.emit("joinRoom", {room_id: data.room_id});
+  socket.emit("joinRoom", { room_id: data.room_id });
   console.log(`Joined room with ticket ID: ${data.room_id}`);
 };
 
@@ -181,14 +192,17 @@ export const leaveTicketRoom = () => {
   console.log("Left the room");
 };
 
-export const sendMessage = (content: string) => {
+export const sendMessage = (email: string, name: string, content: string, contentType: string, channel: string) => {
   if (!currentTicketId) {
     console.error("You must join a room before sending a message.");
     return;
   }
   socket.emit("sendMessage", {
+    email,
+    name,
     room_id: currentTicketId,
     content,
-    content_type: "text/plain",
+    content_type: contentType,
+    channel,
   });
 };

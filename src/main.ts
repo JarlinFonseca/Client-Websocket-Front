@@ -10,10 +10,6 @@ import {
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
     <h2>WebSocket - Client!</h2>
-    <div id="external-fields">
-      <input id="email-input" placeholder="Email" />
-       <input id="name-input" placeholder="Name" />
-    </div>
     <button id="btn-connect">Connect</button>
 
     <br/>
@@ -34,7 +30,12 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
     <h3>Send Message</h3>
     <form id="message-form">
-      <input placeholder="Message" id="message-input" />
+      <input placeholder="Content" id="message-input" />
+       <input placeholder="Content type" id="contentype-input" />
+      <input placeholder="Email" id="email-input" />
+        <input placeholder="Name" id="name-input" />
+      <input placeholder="Channel" id="channel-input" />
+
       <button type="submit">Send</button>
     </form>
 
@@ -53,6 +54,11 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
 const emailInput = document.querySelector<HTMLInputElement>("#email-input")!;
 const nameInput = document.querySelector<HTMLInputElement>("#name-input")!;
+const contentypeInput =
+  document.querySelector<HTMLInputElement>("#contentype-input")!;
+const channelInput =
+  document.querySelector<HTMLInputElement>("#channel-input")!;
+
 const btnConnect = document.querySelector<HTMLButtonElement>("#btn-connect")!;
 const btnJoinRoom =
   document.querySelector<HTMLButtonElement>("#btn-join-room")!;
@@ -70,19 +76,19 @@ const closeModal = document.querySelector<HTMLSpanElement>("#close-modal")!;
 btnConnect.addEventListener("click", () => {
   // const selectedUserType = userTypeSelect.value;
 
-  let email = "";
-  let name = "";
+  // let email = "";
+  // let name = "";
 
-  email = emailInput.value.trim();
-  if (email.length <= 0 || !/\S+@\S+\.\S+/.test(email)) {
-    return alert("Enter a valid email address");
-  }
-  name = nameInput.value.trim();
-  if (nameInput.value.trim().length <= 0) {
-    return alert("Enter a valid name");
-  }
+  // email = emailInput.value.trim();
+  // if (email.length <= 0 || !/\S+@\S+\.\S+/.test(email)) {
+  //   return alert("Enter a valid email address");
+  // }
+  // name = nameInput.value.trim();
+  // if (nameInput.value.trim().length <= 0) {
+  //   return alert("Enter a valid name");
+  // }
 
-  connectToServer(email, name);
+  connectToServer();
 });
 
 // Unirse a la sala con el ticket ID
@@ -90,7 +96,7 @@ btnJoinRoom.addEventListener("click", () => {
   if (ticketIdJoinInput.value.trim().length <= 0)
     return alert("Enter a valid Ticket ID");
 
-  joinTicketRoom({ room_id: ticketIdJoinInput.value.trim()});
+  joinTicketRoom({ room_id: ticketIdJoinInput.value.trim() });
 
   // Ocultar el input y el botón de unirse a la sala
   ticketIdJoinInput.style.display = "none";
@@ -127,10 +133,38 @@ messageForm.addEventListener("submit", (event) => {
   if (messageInput.value.trim().length <= 0)
     return alert("Please enter a message");
 
-  // Enviar el mensaje a la sala actual
-  sendMessage(messageInput.value);
+  let email = "";
+  let name = "";
+  let contenType = "";
+  let channel = "";
 
-  messageInput.value = ""; // Limpiar el input del mensaje después de enviar
+  email = emailInput.value.trim();
+  if (email.length <= 0 || !/\S+@\S+\.\S+/.test(email)) {
+    return alert("Enter a valid email address");
+  }
+  name = nameInput.value.trim();
+  if (nameInput.value.trim().length <= 0) {
+    return alert("Enter a valid name");
+  }
+
+  contenType = contentypeInput.value.trim();
+  if (contentypeInput.value.trim().length <= 0) {
+    return alert("Enter a valid content type");
+  }
+
+  channel = channelInput.value.trim();
+  if (channelInput.value.trim().length <= 0) {
+    return alert("Enter a valid channel");
+  }
+
+  // Enviar el mensaje a la sala actual
+  sendMessage(email, name, messageInput.value, contenType, channel);
+
+  messageInput.value = ""; // Limpiar el input del mensaje después de enviar}
+  emailInput.value = ""; // Limpiar el input del mensaje después de enviar}
+  nameInput.value = ""; // Limpiar el input del mensaje después de enviar}
+  contentypeInput.value = ""; // Limpiar el input del mensaje después de enviar}
+  channelInput.value = ""; // Limpiar el input del mensaje después de enviar}
 });
 
 // Cerrar modal al hacer clic fuera del contenido del modal
@@ -142,17 +176,14 @@ window.onclick = (event) => {
 
 // Manejar carga de la página
 window.addEventListener("load", () => {
-  const savedEmail = sessionStorage.getItem("email"); // Obtener el email guardado
-  const savedName = sessionStorage.getItem("name"); // Obtener el nombre guardado
+  // const savedEmail = sessionStorage.getItem("email"); // Obtener el email guardado
+  // const savedName = sessionStorage.getItem("name"); // Obtener el nombre guardado
   const savedTicketId = sessionStorage.getItem("currentTicketId"); // Obtener el ticket ID guardado
 
+  // connectToServer(); // Pasar el token y el tipo de usuario
 
-  if (savedEmail && savedName) {
-    connectToServer(savedEmail, savedName); // Pasar el token y el tipo de usuario
-
-    if (savedTicketId) {
-      ticketIdJoinInput.style.display = "none";
-      btnJoinRoom.style.display = "none"; // Ocultar si ya está en una sala
-    }
+  if (savedTicketId) {
+    ticketIdJoinInput.style.display = "none";
+    btnJoinRoom.style.display = "none"; // Ocultar si ya está en una sala
   }
 });
