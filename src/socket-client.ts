@@ -109,10 +109,10 @@ const addListeners = () => {
 
   socket.on(
     "chatToClient",
-    (payload: { full_name: string; content: string; created_at: string }) => {
+    (payload: { name: string; content: string; created_at: string }) => {
       console.log({ payload });
-      if (!clientColors[payload.full_name]) {
-        clientColors[payload.full_name] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
+      if (!clientColors[payload.name]) {
+        clientColors[payload.name] = getRandomDarkColor(); // Asignar un color oscuro si no tiene
       }
 
       // Convertir la fecha UTC a la zona horaria local
@@ -125,8 +125,8 @@ const addListeners = () => {
 
       const newMessage = `
       <li>
-        <strong style="color:${clientColors[payload.full_name]}">${
-        payload.full_name
+        <strong style="color:${clientColors[payload.name]}">${
+        payload.name
       }</strong>
         <span style="color:black;">${payload.content}</span>
          <small style="color:gray;">${localTime}</small>
